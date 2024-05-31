@@ -4,11 +4,9 @@ import React, { useEffect, useState } from 'react'
 
 const App = () => {
   const [items, setItems] = useState([])
-  const [name, setName] = useState('')
-  // const [initials, setInitials] = useState('')
-  // const [titles, setTitle] = useState('')
-  const [year, setYear] = useState()
-  // const [editingId, setEditingId] = useState(null)
+  const [title, setTitle] = useState('')
+  const [year_founded, setYear] = useState('')
+  const [editingId, setEditingId] = useState(null)
   useEffect(()=>{
     fetchData()
   },[])
@@ -24,21 +22,51 @@ const App = () => {
 
   const handleAddItem = async ()=>{
     try{
-      const newItem = {name, year}
-      const response = await axios.post('http://127.0.0.1:8000/', {name, year})
-      setItems([...items, response.items])
+      const newItem = {title, year_founded}
+      const response = await axios.post('http://127.0.0.1:8000/', newItem)
+      setItems([...items, response.data])
       // fetchData()
-      setName('')
-      setYear()
+      setTitle('')
+      setYear('')
       console.log(newItem)
     } catch(error){
       console.error(`Error creating new item ${error}`)
     }
   }
+  const handleUpdateItem= async (id)=>{
+    try{
+      const newItem = {title, year_founded}
+      const response = await axios.put(`http://127.0.0.1:8000/team/${id}`, newItem)
+      setItems(items.map((item)=>(item.id === id ? response.data : item)))   
+      setTitle('')   
+      setYear('')   
+      setEditingId(null)
+    } catch(error){
+      console.error(`Error updating item ${error}`)
+    }
+  }
+  const handleDeleteItem= async (id)=>{
+    try{
+      await axios.delete(`http://127.0.0.1:8000/team/${id}`)
+      setItems(items.filter(item=>item.id !== id))
+    } catch(error){
+      console.error(`Error deleting item ${error}`)
+    }
+  }
 
   const handleSubmit=(e)=>{
     e.preventDefault()
-    handleAddItem()
+    if(editingId){
+      handleUpdateItem(editingId)
+    } else{
+      handleAddItem()
+    }
+  }
+
+  const handleUpdate =(item)=>{
+    setTitle(item.title)
+    setYear(item.year_founded)
+    setEditingId(item.id)
   }
   return (
     <div>
@@ -48,19 +76,19 @@ const App = () => {
           <input
             type='text'
             placeholder='enter name here'
-            value={name}
-            onChange={(e)=>setName(e.target.value)}
+            value={title}
+            onChange={(e)=>setTitle(e.target.value)}
             required
           />
           <br/>
           <input 
             type='number'
             placeholder='enter year founded'
-            value={year}
+            value={year_founded}
             onChange={(e)=>setYear(e.target.value)}
             required
-            /><br/><hr/>
-            <input type='submit'/>
+          /><br/><hr/>
+          <input type='submit' value = {editingId ? 'update' : 'add'}/>
 
         </form>
       </div>
@@ -69,9 +97,9 @@ const App = () => {
         <ul>
           {items.map((item)=>(
             <li key={item.id}>
-              {item.name}
-              <button>edit</button>
-              <button>delete</button>
+              {item.title} || {item.year_founded} <br/>
+              <button onClick={()=>handleUpdate(item)} >edit</button> <></>
+              <button onClick={()=>handleDeleteItem(item.id)} >delete</button>
               <hr/>
             </li>
           ))}

@@ -26,7 +26,7 @@ def teams(request):
 def team(request, id):
   try:
     team = Team.objects.get(id=id)
-  except(team.notFound):
+  except team.notFound:
     return Response(status=status.HTTP_204_NO_CONTENT)
     
   if request.method == 'GET':
@@ -41,7 +41,5 @@ def team(request, id):
     return Response(serialized.data)
   
   if request.method == 'DELETE':
-    serialized = teamSerializer(data=request.data)
-    if serialized.is_valid():
-      serialized.delete()
+    team.delete()
     return Response(status=status.HTTP_200_OK)

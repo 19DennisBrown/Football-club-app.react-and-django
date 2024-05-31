@@ -5,7 +5,7 @@ from django.db import models
 
 
 class Team(models.Model):
-  name = models.CharField(max_length=100)
+  title = models.CharField(max_length=100)
   # titles_won = models.IntegerField()
   year_founded = models.IntegerField()
   # name_initials = models.CharField(max_length=4)
